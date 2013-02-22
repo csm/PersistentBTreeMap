@@ -47,9 +47,34 @@ private class KeyValue[K, V](val key:K, val value:V)
 }
 
 private class KeyPointer[K](val key:K, val ptr:Long)
+{
+  def writeTo(out:DataOutput)(implicit ks:Serializer[K]) = {
+    val bos = new ByteArrayOutputStream()
+    ks.serialize(bos, key)
+    val kb = bos.toByteArray
+    out.writeInt(kb.length)
+    out.write(kb)
+    out.writeLong(ptr)
+  }
+}
+
 private class Node
 private case class InternalNode[K](val parts:Array[KeyPointer[K]], val ahead:Long) extends Node
+{
+  def writeTo(out:DataOutput)(implicit ks:Serializer[K]) = {
+    out.writeInt(parts.length)
+    parts.foreach(kp => kp.writeTo(out))
+    out.writeLong(ahead)
+  }
+}
+
 private case class LeafNode[K, V](val parts:Array[KeyValue[K, V]]) extends Node
+{
+  def writeTo(out:DataOutput)(implicit ks:Serializer[K], vs:Serializer[V]) = {
+    out.writeInt(parts.length)
+    parts.foreach(kv => kv.writeTo(out))
+  }
+}
 
 class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
                                val keySerializer:Option[Serializer[K]] = None,
@@ -208,6 +233,7 @@ class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
       else
       {
         val path = nodePath(kv._1)
+        val leaf = path.head
       }
       this
     }
