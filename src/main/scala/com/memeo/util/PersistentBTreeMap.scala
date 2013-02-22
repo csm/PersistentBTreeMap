@@ -385,7 +385,6 @@ class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
     if (channel.isOpen())
     {
       channel.close()
-      fp.close()
     }
   }
 
