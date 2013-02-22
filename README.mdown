@@ -1,0 +1,3 @@
+This is an implementation of the `scala.collection.mutable.Map` trait, as a persistent, append-only B+ tree.
+
+It is currently in development, and *likely* does not yet work or is even code complete.
