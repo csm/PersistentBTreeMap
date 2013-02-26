@@ -1,9 +1,5 @@
-package com.memeo.util
-
-import java.io.{InputStream, OutputStream, DataInput, DataOutput}
-
 /*
- * Copyright 2013 Memeo, Inc.
+ * Copyright 2013 Casey Marshall.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +13,11 @@ import java.io.{InputStream, OutputStream, DataInput, DataOutput}
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.memeo.util
+
+import java.io.{InputStream, OutputStream, DataInput, DataOutput}
+
 trait Serializer[T]
 {
   /**

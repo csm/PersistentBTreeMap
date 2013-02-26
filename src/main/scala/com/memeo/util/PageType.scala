@@ -1,7 +1,5 @@
-package com.memeo.util
-
 /*
- * Copyright 2013 Memeo, Inc.
+ * Copyright 2013 Casey Marshall.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +13,9 @@ package com.memeo.util
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.memeo.util
+
 object PageType
 {
   val Root:Int = 0x726f6f74

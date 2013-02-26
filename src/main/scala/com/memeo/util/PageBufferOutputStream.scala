@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Memeo, Inc.
+ * Copyright 2013 Casey Marshall.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.security.MessageDigest
 
 object PageBuffers
 {
-  val PAGESIZE = 4096
+  val PAGESIZE = 1024
 }
 
 class PageBufferOutputStream(initialBuffers:Option[Array[ByteBuffer]] = None) extends OutputStream
