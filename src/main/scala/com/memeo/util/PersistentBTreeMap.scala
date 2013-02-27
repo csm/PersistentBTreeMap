@@ -148,7 +148,7 @@ class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
     page.duplicate().position(PageBuffers.PAGESIZE - md.getDigestLength).limit(PageBuffers.PAGESIZE).equals(digest)
   }
 
-  private def readRoot(pos:Long = -1):Root = {
+  private def readRoot(pos:Long = 1):Root = {
     val numPages = channel.size() / PageBuffers.PAGESIZE
     if (numPages - pos < 0)
       throw new MalformedBTreeException("root page not found")
@@ -186,17 +186,7 @@ class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
   // mutable.Map
 
   private def lockFile():FileLock = {
-    try
-    {
-      channel.lock()
-    }
-    catch
-    {
-      case ofle:OverlappingFileLockException => {
-        LockSupport.parkNanos(100)
-        lockFile()
-      }
-    }
+    channel.lock()
   }
 
   def +=(kv: (K, V)) = {
@@ -233,7 +223,30 @@ class PersistentBTreeMap[K <: AnyRef, V <: AnyRef](val file:File,
       else
       {
         val path = nodePath(kv._1)
-        val leaf = path.head
+        val leaf = path.head.asInstanceOf[LeafNode[K, V]]
+        leaf.parts.find(p => kv._1.equals(v._1)) match {
+          case s:Some[KeyValue] => {
+            // Easy case: we are replacing a key.
+            val newPath = new LeafNode[K, V](leaf.parts.updated(leaf.parts.indexWhere(e => kv._1.equals(e.key), new KeyValue[K, V](kv._1, kv._2)))) :: path.tail
+            writeNodes(newPath)
+          }
+          case None => {
+            // Need a new node
+            if (leaf.parts.size < 8)
+            {
+              // We can just insert our new key/value into this node
+              val ab = leaf.parts.splitAt(leaf.parts.indexWhere(e => comp.compare(kv._1, e.key) >= 0))
+              val newPath = ab(0) :: new KeyValue[K, V](kv._1, kv._2) :: ab(1)
+              writeNodes(newPath)
+            }
+            else
+            {
+              // Split the leaf node, and any other parents that
+              // may need splitting.
+            }
+          }
+        }
+
       }
       this
     }
